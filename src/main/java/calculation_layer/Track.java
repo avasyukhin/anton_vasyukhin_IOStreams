@@ -33,4 +33,11 @@ public class Track{
     public void setLength(int length) {
         this.length = length;
     }
+
+    @Override
+    public String toString() {
+        return "\t\t" + name +
+                " :: " + length +
+                "s\n";
+    }
 }

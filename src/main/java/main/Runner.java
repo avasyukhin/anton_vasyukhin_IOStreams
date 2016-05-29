@@ -1,9 +1,9 @@
 package main;
 
-import catalog.Album;
-import catalog.Catalog;
-import catalog.Performer;
-import catalog.Track;
+import calculation_layer.Album;
+import calculation_layer.Catalog;
+import calculation_layer.Performer;
+import calculation_layer.Track;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -23,10 +23,6 @@ public class Runner {
         List<Performer> performers = new ArrayList<Performer>();
         performers.add(performer);
         Catalog catalog = new Catalog(performers);
-        try {
-            catalog.writeExternal(new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream("test.xml"))) );
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        System.out.println(catalog);
     }
 }

@@ -61,4 +61,12 @@ public class Album {
             e.printStackTrace();
         }
     }
+    @Override
+    public String toString(){
+        String string="\tAlbum: "+name+" Genre: "+genre+"\n";
+        for (Track track: tracks){
+            string+=track.toString()+'\n';
+        }
+        return string;
+    }
 }
