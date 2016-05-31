@@ -21,11 +21,5 @@ public class Catalog implements Serializable {
         return performers;
     }
 
-    private void writeObject(ObjectOutputStream out) throws IOException {
-        throw new NotSerializableException("You must use Serializator class");
-    }
 
-    private void readObject(ObjectInputStream in) throws IOException {
-        throw new NotSerializableException("You must use Serializator class");
-    }
 }
