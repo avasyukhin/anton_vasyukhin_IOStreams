@@ -31,7 +31,7 @@ public class Album {
     private final void setNoEmptyTracks(List<Track> tracks) {
         if (!tracks.isEmpty()) {
             this.tracks = tracks;
-        }else throw new NoSuchElementException("Album must have at least one track");
+        }else throw new NoSuchElementException("EntityAlbum must have at least one track");
     }
 
     public String getName() {
@@ -63,7 +63,7 @@ public class Album {
     }
     @Override
     public String toString(){
-        String string="\tAlbum: "+name+" Genre: "+genre+"\n";
+        String string="\tEntityAlbum: "+name+" Genre: "+genre+"\n";
         for (Track track: tracks){
             string+=track.toString()+'\n';
         }

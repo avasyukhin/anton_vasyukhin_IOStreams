@@ -5,12 +5,12 @@ import java.io.*;
 /**
  * Created by Aphex on 28.05.2016.
  */
-public class Track implements Serializable {
+public class EntityTrack implements Serializable {
     private String name;
     private int length;
 
 
-    public Track(int length, String name) {
+    public EntityTrack(int length, String name) {
         this.length = length;
         this.name = name;
     }

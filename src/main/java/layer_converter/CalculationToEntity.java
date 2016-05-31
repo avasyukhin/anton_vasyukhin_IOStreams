@@ -2,26 +2,35 @@ package layer_converter;
 
 
 
+import calculation_layer.Album;
+import calculation_layer.Catalog;
+import calculation_layer.Performer;
+import calculation_layer.Track;
+import entity_layer.EntityCatalog;
+import entity_layer.EntityPerformer;
+import entity_layer.EntityAlbum;
+import entity_layer.EntityTrack;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by Aphex on 31.05.2016.
  */
-public class CalculationToEntity implements LayerConverter<calculation_layer.Catalog, entity_layer.Catalog>{
-    public entity_layer.Catalog convert (calculation_layer.Catalog inputLayer){
-        List<entity_layer.Performer> performers = new ArrayList<entity_layer.Performer>();
-        for (calculation_layer.Performer performer: inputLayer.getPerformers()){
-            List<entity_layer.Album> albums = new ArrayList<entity_layer.Album>();
-            for (calculation_layer.Album album: performer.getAlbums()){
-                List<entity_layer.Track> tracks = new ArrayList<entity_layer.Track>();
-                for (calculation_layer.Track track: album.getTracks()){
-                    tracks.add(new entity_layer.Track(track.getLength(),track.getName()));
+public class CalculationToEntity implements LayerConverter<Catalog, EntityCatalog>{
+    public EntityCatalog convert (Catalog inputLayer){
+        List<EntityPerformer> EntityPerformers = new ArrayList<EntityPerformer>();
+        for (Performer performer: inputLayer.getPerformers()){
+            List<EntityAlbum> EntityAlbums = new ArrayList<EntityAlbum>();
+            for (Album album: performer.getAlbums()){
+                List<EntityTrack> EntityTracks = new ArrayList<EntityTrack>();
+                for (Track track: album.getTracks()){
+                    EntityTracks.add(new EntityTrack(track.getLength(),track.getName()));
                 }
-                albums.add(new entity_layer.Album(album.getName(),album.getGenre(),tracks));
+                EntityAlbums.add(new EntityAlbum(album.getName(),album.getGenre(), EntityTracks));
             }
-            performers.add(new entity_layer.Performer(performer.getName(),albums));
+            EntityPerformers.add(new EntityPerformer(performer.getName(), EntityAlbums));
         }
-        return new entity_layer.Catalog(performers);
+        return new EntityCatalog(EntityPerformers);
     }
 }

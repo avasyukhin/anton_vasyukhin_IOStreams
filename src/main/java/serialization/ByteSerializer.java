@@ -1,56 +1,37 @@
 package serialization;
 
-import entity_layer.Catalog;
+import entity_layer.EntityCatalog;
 
 import java.io.*;
 
 /**
  * Created by Aphex on 31.05.2016.
  */
-public class ByteSerializer implements Serializer<Catalog> {
-    private Catalog entity;
+public class ByteSerializer implements Serializer<EntityCatalog> {
 
-    public ByteSerializer() {
-    }
 
-    public ByteSerializer(Catalog entity) {
-        this.entity = entity;
-    }
 
-    public Catalog getEntity() {
-        return entity;
-    }
 
-    public void setEntity(Catalog entity) {
-        this.entity = entity;
+    public void serialize(EntityCatalog entity,String filepath) throws IOException {
+        ObjectOutputStream out =new ObjectOutputStream(
+                new BufferedOutputStream(
+                        new FileOutputStream(filepath)));
+        out.writeObject(entity);
+        out.flush();
+        out.close();
     }
-
-    public void serialize(String filepath){
-        try{
-            ObjectOutputStream out =new ObjectOutputStream(
-                    new BufferedOutputStream(
-                            new FileOutputStream(filepath)));
-            out.writeObject(this);
-            out.flush();
-            out.close();
-        }catch (IOException e){
-            e.printStackTrace();
-        }
-    }
-    public Serializer deserialize(String filepath){
-        Serializer serializer =new ByteSerializer();
-        try{
-            ObjectInputStream in =new ObjectInputStream(
-                    new BufferedInputStream(
-                            new FileInputStream(filepath)));
-            serializer = (ByteSerializer)in.readObject();
-            in.close();
-        }catch (IOException e){
-            e.printStackTrace();
-        }catch (ClassNotFoundException e){
+    public EntityCatalog deserialize(String filepath) throws IOException {
+        ObjectInputStream in =new ObjectInputStream(
+                new BufferedInputStream(
+                        new FileInputStream(filepath)));
+        EntityCatalog entity=null;
+        try {
+            entity = (EntityCatalog)in.readObject();
+        } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }finally {
-            return serializer;
+            in.close();
+            return entity;
         }
     }
 }

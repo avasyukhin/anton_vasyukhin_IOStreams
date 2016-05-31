@@ -26,7 +26,7 @@ public class Performer {
     private final void setNoEmptyAlbums(List<Album> albums) {
         if (!albums.isEmpty()) {
             this.albums = albums;
-        } else throw new NoSuchElementException("Performer must have at least one album");
+        } else throw new NoSuchElementException("EntityPerformer must have at least one album");
     }
 
     public String getName() {

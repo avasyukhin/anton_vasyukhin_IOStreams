@@ -7,27 +7,27 @@ import java.util.NoSuchElementException;
 /**
  * Created by Aphex on 28.05.2016.
  */
-public class Album implements Serializable {
+public class EntityAlbum implements Serializable {
     private String name;
     private String genre;
-    private List<Track> tracks;
+    private List<EntityTrack> EntityTracks;
 
 
-    public Album(String name, String genre, List<Track> tracks) {
+    public EntityAlbum(String name, String genre, List<EntityTrack> EntityTracks) {
         this.name = name;
         this.genre = genre;
         try {
-            setNoEmptyTracks(tracks);
+            setNoEmptyTracks(EntityTracks);
         } catch (NoSuchElementException e) {
             e.printStackTrace();
         }
 
     }
 
-    private final void setNoEmptyTracks(List<Track> tracks) {
-        if (!tracks.isEmpty()) {
-            this.tracks = tracks;
-        } else throw new NoSuchElementException("Album must have at least one track");
+    private final void setNoEmptyTracks(List<EntityTrack> EntityTracks) {
+        if (!EntityTracks.isEmpty()) {
+            this.EntityTracks = EntityTracks;
+        } else throw new NoSuchElementException("EntityAlbum must have at least one track");
     }
 
     public String getName() {
@@ -46,13 +46,13 @@ public class Album implements Serializable {
         this.genre = genre;
     }
 
-    public List<Track> getTracks() {
-        return tracks;
+    public List<EntityTrack> getEntityTracks() {
+        return EntityTracks;
     }
 
-    public void setTracks(List<Track> tracks) {
+    public void setEntityTracks(List<EntityTrack> EntityTracks) {
         try {
-            setNoEmptyTracks(tracks);
+            setNoEmptyTracks(EntityTracks);
         } catch (NoSuchElementException e) {
             e.printStackTrace();
         }

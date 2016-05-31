@@ -1,10 +1,10 @@
 package serialization;
 
 
-import entity_layer.Album;
-import entity_layer.Catalog;
-import entity_layer.Performer;
-import entity_layer.Track;
+import entity_layer.EntityCatalog;
+import entity_layer.EntityPerformer;
+import entity_layer.EntityAlbum;
+import entity_layer.EntityTrack;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -13,81 +13,57 @@ import java.util.List;
 /**
  * Created by Aphex on 31.05.2016.
  */
-public class TextSerializer implements Serializer<Catalog> {
-    private final String PERFORMER_MARK = "PERFORMER\n";
-    private final String ALBUM_NAME_MARK = "##ALBUM_NAME\n";
-    private final String ALBUM_GENRE_MARK = "##ALBUM_GENRE\n";
-    private final String TRACK_NAME_MARK = "####TRACK_NAME\n";
-    private final String TRACK_LENGTH_MARK = "####TRACK_LENGTH\n";
+public class TextSerializer implements Serializer<EntityCatalog> {
+    private final String PERFORMER_MARK = "PERFORMER";
+    private final String ALBUM_NAME_MARK = "##ALBUM_NAME";
+    private final String ALBUM_GENRE_MARK = "##ALBUM_GENRE";
+    private final String TRACK_NAME_MARK = "####TRACK_NAME";
+    private final String TRACK_LENGTH_MARK = "####TRACK_LENGTH";
     private final String END_CATALOG = "END_CATALOG";
-    private final String END_PERFORMER = "END_PERFORMER\n";
-    private final String END_ALBUM = "END_ALBUM\n";
-    private Catalog entity;
+    private final String END_PERFORMER = "END_PERFORMER";
+    private final String END_ALBUM = "END_ALBUM";
 
-    public TextSerializer() {
+
+    
+
+    public void serialize(EntityCatalog entity,String filepath) throws IOException{
+        PrintWriter out = new PrintWriter(
+                    new BufferedWriter(
+                        new FileWriter(filepath)));
+        writeCatalog(out,entity);
+        out.flush();
+        out.close();
     }
 
-    public TextSerializer(Catalog entity) {
-        this.entity = entity;
+    public EntityCatalog deserialize(String filepath) throws IOException {
+        EntityCatalog EntityCatalog =new EntityCatalog();
+        BufferedReader in = new BufferedReader(
+                        new FileReader(filepath));
+        EntityCatalog catalog = readCatalog(in);
+        in.close();
+        return catalog;
     }
 
-    public Catalog getEntity() {
-        return entity;
-    }
-
-    public void setEntity(Catalog entity) {
-        this.entity = entity;
-    }
-
-    public void serialize(String filepath){
-        try{
-            ObjectOutputStream out =new ObjectOutputStream(
-                    new BufferedOutputStream(
-                            new FileOutputStream(filepath)));
-            out.writeObject(this);
-            out.flush();
-            out.close();
-        }catch (IOException e){
-            e.printStackTrace();
-        }
-    }
-    public Serializer deserialize(String filepath){
-        Serializer serializer =new TextSerializer();
-        try{
-            ObjectInputStream in =new ObjectInputStream(
-                    new BufferedInputStream(
-                            new FileInputStream(filepath)));
-            serializer = (TextSerializer)in.readObject();
-            in.close();
-        }catch (IOException e){
-            e.printStackTrace();
-        }catch (ClassNotFoundException e){
-            e.printStackTrace();
-        }finally {
-            return serializer;
-        }
-    }
-
-    private void writeObject(ObjectOutputStream out) throws IOException {
-        for (Performer performer : entity.getPerformers()) {
-            out.writeUTF(PERFORMER_MARK);
-            out.writeUTF(performer.getName() + '\n');
-            for (Album album : performer.getAlbums()) {
-                out.writeUTF(ALBUM_NAME_MARK);
-                out.writeUTF(album.getName() + '\n');
-                out.writeUTF(ALBUM_GENRE_MARK);
-                out.writeUTF(album.getGenre() + '\n');
-                for (Track track: album.getTracks()){
-                    out.writeUTF(TRACK_NAME_MARK);
-                    out.writeUTF(track.getName() + '\n');
-                    out.writeUTF(TRACK_LENGTH_MARK);
-                    out.writeInt(track.getLength());
+    public void writeCatalog(PrintWriter out, EntityCatalog entity) throws IOException {
+        for (EntityPerformer EntityPerformer : entity.getEntityPerformers()) {
+            out.println(PERFORMER_MARK);
+            out.println(EntityPerformer.getName());
+            for (EntityAlbum EntityAlbum : EntityPerformer.getEntityAlbums()) {
+                out.println(ALBUM_NAME_MARK);
+                out.println('\t'+ EntityAlbum.getName());
+                out.println(ALBUM_GENRE_MARK);
+                out.println('\t' + EntityAlbum.getGenre());
+                for (entity_layer.EntityTrack EntityTrack : EntityAlbum.getEntityTracks()) {
+                    out.println(TRACK_NAME_MARK);
+                    out.println("\t\t"+ EntityTrack.getName());
+                    out.println(TRACK_LENGTH_MARK);
+                    out.println("\t\t" + EntityTrack.getLength());
                 }
-                out.writeUTF(END_ALBUM);
+                out.println(END_ALBUM);
             }
-            out.writeUTF(END_PERFORMER);
+            out.println(END_PERFORMER);
         }
-        out.writeUTF(END_CATALOG);
+        out.println(END_CATALOG);
     }
 
     private void checkFormat(String inString, String markerString) {
@@ -100,41 +76,41 @@ public class TextSerializer implements Serializer<Catalog> {
         }
     }
 
-    private void readObject(ObjectInputStream in) throws IOException {
-        List<Performer> performers = new ArrayList<Performer>();
+    private EntityCatalog readCatalog(BufferedReader in) throws IOException {
+        List<EntityPerformer> EntityPerformers = new ArrayList<EntityPerformer>();
         while (true) {
-            String inputPerformerMark = in.readUTF();
+            String inputPerformerMark = in.readLine();
             if (inputPerformerMark.equals(END_CATALOG)) {
                 break;
             }
             checkFormat(inputPerformerMark, PERFORMER_MARK);
-            String performerName = in.readUTF().trim();
-            List<Album> albums = new ArrayList<Album>();
+            String performerName = in.readLine().trim();
+            List<EntityAlbum> EntityAlbums = new ArrayList<EntityAlbum>();
             while (true) {
-                String inputAlbumMark = in.readUTF();
+                String inputAlbumMark = in.readLine();
                 if (inputAlbumMark.equals(END_PERFORMER)) {
                     break;
                 }
                 checkFormat(inputAlbumMark, ALBUM_NAME_MARK);
-                String albumName = in.readUTF().trim();
-                checkFormat(in.readUTF(), ALBUM_GENRE_MARK);
-                String albumGenre = in.readUTF().trim();
-                List<Track> tracks = new ArrayList<Track>();
+                String albumName = in.readLine().trim();
+                checkFormat(in.readLine(), ALBUM_GENRE_MARK);
+                String albumGenre = in.readLine().trim();
+                List<EntityTrack> EntityTracks = new ArrayList<EntityTrack>();
                 while (true) {
-                    String inputTrackMark = in.readUTF();
+                    String inputTrackMark = in.readLine();
                     if (inputTrackMark.equals(END_ALBUM)) {
                         break;
                     }
                     checkFormat(inputTrackMark, TRACK_NAME_MARK);
-                    String trackName = in.readUTF().trim();
-                    checkFormat(in.readUTF(), TRACK_LENGTH_MARK);
-                    int trackLength = in.readInt();
-                    tracks.add(new Track(trackLength,trackName));
+                    String trackName = in.readLine().trim();
+                    checkFormat(in.readLine(), TRACK_LENGTH_MARK);
+                    int trackLength = Integer.parseInt(in.readLine().trim());
+                    EntityTracks.add(new EntityTrack(trackLength, trackName));
                 }
-                albums.add(new Album(albumName,albumGenre,tracks));
+                EntityAlbums.add(new EntityAlbum(albumName, albumGenre, EntityTracks));
             }
-            performers.add(new Performer(performerName,albums));
+            EntityPerformers.add(new EntityPerformer(performerName, EntityAlbums));
         }
-        entity=new Catalog(performers);
+        return new EntityCatalog(EntityPerformers);
     }
 }
