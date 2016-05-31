@@ -18,7 +18,7 @@ public class Album implements Serializable {
         this.genre = genre;
         try {
             setNoEmptyTracks(tracks);
-        }catch (NoSuchElementException e){
+        } catch (NoSuchElementException e) {
             e.printStackTrace();
         }
 
@@ -27,7 +27,7 @@ public class Album implements Serializable {
     private final void setNoEmptyTracks(List<Track> tracks) {
         if (!tracks.isEmpty()) {
             this.tracks = tracks;
-        }else throw new NoSuchElementException("Album must have at least one track");
+        } else throw new NoSuchElementException("Album must have at least one track");
     }
 
     public String getName() {
@@ -53,8 +53,16 @@ public class Album implements Serializable {
     public void setTracks(List<Track> tracks) {
         try {
             setNoEmptyTracks(tracks);
-        }catch (NoSuchElementException e){
+        } catch (NoSuchElementException e) {
             e.printStackTrace();
         }
+    }
+
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        throw new NotSerializableException("You must use Serializator class");
+    }
+
+    private void readObject(ObjectInputStream in) throws IOException {
+        throw new NotSerializableException("You must use Serializator class");
     }
 }
