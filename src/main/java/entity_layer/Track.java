@@ -1,4 +1,4 @@
-package entitiy_layer;
+package entity_layer;
 
 import java.io.*;
 

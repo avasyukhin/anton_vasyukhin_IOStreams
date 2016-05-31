@@ -4,6 +4,9 @@ import calculation_layer.Album;
 import calculation_layer.Catalog;
 import calculation_layer.Performer;
 import calculation_layer.Track;
+import layer_converter.CalculationToEntity;
+import layer_converter.EntityToCalculation;
+import layer_converter.LayerConverter;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -22,7 +25,11 @@ public class Runner {
         Performer performer = new Performer("testperfomer",albums);
         List<Performer> performers = new ArrayList<Performer>();
         performers.add(performer);
-        Catalog catalog = new Catalog(performers);
-        System.out.println(catalog);
+        Catalog calculation = new Catalog(performers);
+        LayerConverter converter = new CalculationToEntity();
+        entity_layer.Catalog entity = (entity_layer.Catalog) converter.convert(calculation);
+        converter = new EntityToCalculation();
+        calculation = (Catalog) converter.convert(entity);
+        System.out.println(calculation);
     }
 }
