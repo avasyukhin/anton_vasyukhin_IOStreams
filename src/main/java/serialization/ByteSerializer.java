@@ -7,13 +7,13 @@ import java.io.*;
 /**
  * Created by Aphex on 31.05.2016.
  */
-public class ByteSerializator implements Serializator<Catalog> {
+public class ByteSerializer implements Serializer<Catalog> {
     private Catalog entity;
 
-    public ByteSerializator() {
+    public ByteSerializer() {
     }
 
-    public ByteSerializator(Catalog entity) {
+    public ByteSerializer(Catalog entity) {
         this.entity = entity;
     }
 
@@ -37,20 +37,20 @@ public class ByteSerializator implements Serializator<Catalog> {
             e.printStackTrace();
         }
     }
-    public Serializator deserialize(String filepath){
-        Serializator serializator=new ByteSerializator();
+    public Serializer deserialize(String filepath){
+        Serializer serializer =new ByteSerializer();
         try{
             ObjectInputStream in =new ObjectInputStream(
                     new BufferedInputStream(
                             new FileInputStream(filepath)));
-            serializator = (ByteSerializator)in.readObject();
+            serializer = (ByteSerializer)in.readObject();
             in.close();
         }catch (IOException e){
             e.printStackTrace();
         }catch (ClassNotFoundException e){
             e.printStackTrace();
         }finally {
-            return serializator;
+            return serializer;
         }
     }
 }

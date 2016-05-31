@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Created by Aphex on 31.05.2016.
  */
-public class TextSerializator implements Serializator<Catalog> {
+public class TextSerializer implements Serializer<Catalog> {
     private final String PERFORMER_MARK = "PERFORMER\n";
     private final String ALBUM_NAME_MARK = "##ALBUM_NAME\n";
     private final String ALBUM_GENRE_MARK = "##ALBUM_GENRE\n";
@@ -24,10 +24,10 @@ public class TextSerializator implements Serializator<Catalog> {
     private final String END_ALBUM = "END_ALBUM\n";
     private Catalog entity;
 
-    public TextSerializator() {
+    public TextSerializer() {
     }
 
-    public TextSerializator(Catalog entity) {
+    public TextSerializer(Catalog entity) {
         this.entity = entity;
     }
 
@@ -51,20 +51,20 @@ public class TextSerializator implements Serializator<Catalog> {
             e.printStackTrace();
         }
     }
-    public Serializator deserialize(String filepath){
-        Serializator serializator=new TextSerializator();
+    public Serializer deserialize(String filepath){
+        Serializer serializer =new TextSerializer();
         try{
             ObjectInputStream in =new ObjectInputStream(
                     new BufferedInputStream(
                             new FileInputStream(filepath)));
-            serializator = (TextSerializator)in.readObject();
+            serializer = (TextSerializer)in.readObject();
             in.close();
         }catch (IOException e){
             e.printStackTrace();
         }catch (ClassNotFoundException e){
             e.printStackTrace();
         }finally {
-            return serializator;
+            return serializer;
         }
     }
 

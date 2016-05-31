@@ -7,11 +7,10 @@ import calculation_layer.Track;
 import layer_converter.CalculationToEntity;
 import layer_converter.EntityToCalculation;
 import layer_converter.LayerConverter;
-import serialization.ByteSerializator;
-import serialization.Serializator;
-import serialization.TextSerializator;
+import serialization.ByteSerializer;
+import serialization.Serializer;
+import serialization.TextSerializer;
 
-import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,15 +30,15 @@ public class Runner {
         Catalog calculation = new Catalog(performers);
         LayerConverter converter = new CalculationToEntity();
         entity_layer.Catalog entity = (entity_layer.Catalog) converter.convert(calculation);
-        Serializator serializator = new TextSerializator(entity);
-        serializator.serialize("object_text.ser");
-        serializator.deserialize("object_text.ser");
+        Serializer serializer = new TextSerializer(entity);
+        serializer.serialize("object_text.ser");
+        serializer.deserialize("object_text.ser");
         converter = new EntityToCalculation();
-        calculation = (Catalog) converter.convert(serializator.getEntity());
+        calculation = (Catalog) converter.convert(serializer.getEntity());
         System.out.println(calculation);
-        serializator=new ByteSerializator(entity);
-        serializator.serialize("object_byte.ser");
-        serializator.deserialize("object_byte.ser");
-        System.out.println(converter.convert(serializator.getEntity()));
+        serializer =new ByteSerializer(entity);
+        serializer.serialize("object_byte.ser");
+        serializer.deserialize("object_byte.ser");
+        System.out.println(converter.convert(serializer.getEntity()));
     }
 }
