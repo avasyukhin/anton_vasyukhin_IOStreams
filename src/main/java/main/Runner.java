@@ -7,6 +7,7 @@ import layer_converter.EntityToCalculation;
 import layer_converter.LayerConverter;
 import serialization.ByteSerializer;
 import serialization.TextSerializer;
+import serialization.XMLSerializer;
 
 import java.io.IOException;
 
@@ -23,6 +24,9 @@ public class Runner {
                     catalog);
             catalog = SerializationShower.showSerialization(catalog,new ByteSerializer(),"object_byte.ser");
             System.out.print("No changes in catalog after byte serialization:\n"+
+                    catalog);
+            catalog = SerializationShower.showSerialization(catalog,new XMLSerializer(),"object.xml");
+            System.out.print("No changes in catalog after xml serialization:\n"+
                     catalog);
         } catch (IOException e) {
             e.printStackTrace();

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<catalog>
+	<performer performer_name="testperfomer">
+		<album album_name="testalbum" genre="testgenre">
+			<track track_name="testtrack" length="120"/>
+		</album>
+		<album album_name="otheralbum" genre="testgenre">
+			<track track_name="testtrack" length="120"/>
+		</album>
+	</performer>
+	<performer performer_name="otherperfomer">
+		<album album_name="testalbum" genre="testgenre">
+			<track track_name="testtrack" length="120"/>
+		</album>
+	</performer>
+</catalog>
