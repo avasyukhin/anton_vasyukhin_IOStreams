@@ -19,14 +19,16 @@ import java.util.List;
  */
 public class XMLTest {
     AbstractFactory xmlFactory;
-    AbstractDAO dao;
-    static List<EntityPerformer> testPerformers;
-    static EntityPerformer testPerformer;
+    EntityPerformerDAO dao;
+    static List<EntityPerformer> testPerformers, updatedPerformers, extendedPerformers;
+    static EntityPerformer testPerformer, updatedTestPerformer, performerToAdd;
     static String testperformerName = "testperfomer";
     static String dataPath = "test_data.xml";
     @BeforeClass
     public static void setTestPerformers(){
         testPerformers=new ArrayList<EntityPerformer>();
+        updatedPerformers=new ArrayList<>();
+        extendedPerformers=new ArrayList<>();
         EntityTrack testTrack = new EntityTrack(120,"testtrack");
         List<EntityTrack> tracks = new ArrayList<>();
         tracks.add(testTrack);
@@ -37,8 +39,15 @@ public class XMLTest {
         testPerformerAlbums.add(testAlbum);testPerformerAlbums.add(otherAlbum);
         otherPerformerAlbums.add(testAlbum);
         testPerformer = new EntityPerformer(testperformerName,testPerformerAlbums);
+        updatedTestPerformer = new EntityPerformer(testperformerName,otherPerformerAlbums);
+        performerToAdd = (new EntityPerformer("performertoadd",otherPerformerAlbums));
         testPerformers.add(testPerformer);
         testPerformers.add(new EntityPerformer("otherperfomer",otherPerformerAlbums));
+        updatedPerformers.add(updatedTestPerformer);
+        updatedPerformers.add(new EntityPerformer("otherperfomer", otherPerformerAlbums));
+        extendedPerformers.add(testPerformer);
+        extendedPerformers.add(new EntityPerformer("otherperfomer",otherPerformerAlbums));
+        extendedPerformers.add(performerToAdd);
     }
     @Before
     public void setFactoryAndDao(){
@@ -62,5 +71,19 @@ public class XMLTest {
     @Test
     public void totalLengthTest() throws NoSuchFieldException {
         Assert.assertThat(dao.getTotalLength(testperformerName),is(240));
+    }
+
+    @Test
+    public void addTest() throws NoSuchFieldException {
+        dao.add(performerToAdd);
+        Assert.assertEquals(extendedPerformers,dao.getAll());
+        dao.remove(performerToAdd);
+    }
+
+    @Test
+    public void updateTest() throws NoSuchFieldException {
+        dao.update(updatedTestPerformer);
+        Assert.assertEquals(updatedPerformers,dao.getAll());
+        dao.update(testPerformer);
     }
 }

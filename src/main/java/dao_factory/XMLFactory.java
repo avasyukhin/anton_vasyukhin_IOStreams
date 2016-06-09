@@ -1,6 +1,6 @@
 package dao_factory;
 
-import dao.AbstractDAO;
+import dao.EntityPerformerDAO;
 import dao.XMLDAO;
 
 /**
@@ -22,7 +22,7 @@ public class XMLFactory implements AbstractFactory{
     }
 
 
-    public AbstractDAO createDAO(){
+    public EntityPerformerDAO createDAO(){
         return new XMLDAO(filepath);
     }
 }

@@ -14,19 +14,19 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 
 /**
  * Created by Aphex on 03.06.2016.
  */
-public class XMLDAO implements AbstractDAO {
+public class XMLDAO implements EntityPerformerDAO {
     private String filepath;
     private EntityCatalog entity = null;
     private List<EntityPerformer> performers = null;
     private JAXBContext context = null;
-    private static final Logger log = Logger.getLogger(XMLDAO.class.getName());
+    private static final Logger log = Logger.getLogger(XMLDAO.class);
 
     public XMLDAO(String filepath) {
         log.setLevel(Level.ALL);
@@ -39,7 +39,7 @@ public class XMLDAO implements AbstractDAO {
             performers = entity.getEntityPerformers();
             log.info("DAO inititalized on file " + filepath);
         } catch (JAXBException e) {
-            e.printStackTrace();
+            log.error("DAO init error",e);
         }
     }
 
@@ -61,11 +61,26 @@ public class XMLDAO implements AbstractDAO {
     public void add(EntityPerformer performer) {
         performers.add(performer);
         log.info("Added performer " + performer.getName());
+        XMLupdate();
     }
 
     public void remove(EntityPerformer performer) {
         performers.remove(performer);
         log.info("Removed performer " + performer.getName());
+        XMLupdate();
+    }
+
+    public void update(EntityPerformer performer) throws NoSuchFieldException {
+        String name = performer.getName();
+        for (EntityPerformer performerToUpdate : performers) {
+            if (performer.getName().equals(name)) {
+                performers.set(performers.indexOf(performerToUpdate),performer);
+                log.info("Removed performer " + performer.getName());
+                XMLupdate();
+                return;
+            }
+        }
+        throw new NoSuchFieldException("Not found performer with name " + name);
     }
 
     public int getTotalLength(String name) throws NoSuchFieldException {
@@ -82,9 +97,20 @@ public class XMLDAO implements AbstractDAO {
         return length;
     }
 
-    public void update() {
+
+
+    public void XMLupdate() {
+        try {
+            File file = new File(filepath);
+            context = JAXBContext.newInstance(EntityCatalog.class);
+            Unmarshaller jaxbUnmarshaller = context.createUnmarshaller();
+            entity = (EntityCatalog) jaxbUnmarshaller.unmarshal(file);
+        } catch (JAXBException e) {
+            log.error("DAO init error",e);
+        }
+
         if (entity.getEntityPerformers().equals(performers)) {
-            log.warning("Data is up to date");
+            log.warn("Data is up to date");
         } else {
             entity.setEntityPerformers(performers);
             try {
@@ -92,9 +118,9 @@ public class XMLDAO implements AbstractDAO {
                 m.marshal(entity, new FileOutputStream(filepath));
                 log.info("Data updated");
             } catch (JAXBException e) {
-                e.printStackTrace();
+                log.error("XML update error", e);
             } catch (FileNotFoundException e) {
-                e.printStackTrace();
+                log.error("XML access error", e);
             }
         }
     }
