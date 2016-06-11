@@ -1,29 +1,35 @@
 package dao;
 
 import dao_factory.AbstractFactory;
-import dao_factory.XMLFactory;
+import dao_factory.RDBFactory;
 import entity_layer.EntityAlbum;
 import entity_layer.EntityPerformer;
 import entity_layer.EntityTrack;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.hamcrest.CoreMatchers.*;
+import org.junit.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.hamcrest.CoreMatchers.is;
+
 /**
- * Created by Aphex on 04.06.2016.
+ * Created by Aphex on 11.06.2016.
  */
-public class XMLTest {
-    AbstractFactory xmlFactory;
-    EntityPerformerDAO dao;
+public class RDBTest {
+    /*
+    You must redefine this parameters before running
+     */
+    static final String host="localhost",port="5433",dbname="postgres",user="postgres",password="1qa@WS3ed";
+
+    AbstractFactory sqlFactory;
+    RDBDAO dao;
     static List<EntityPerformer> testPerformers, updatedPerformers, extendedPerformers;
     static EntityPerformer testPerformer, updatedTestPerformer, performerToAdd;
     static String testperformerName = "testperfomer";
     static String dataPath = "test_data.xml";
+
+
+
     @BeforeClass
     public static void setTestPerformers(){
         testPerformers=new ArrayList<EntityPerformer>();
@@ -51,17 +57,26 @@ public class XMLTest {
     }
     @Before
     public void setFactoryAndDao(){
-        xmlFactory = new XMLFactory(dataPath);
-        dao =xmlFactory.createDAO();
+        sqlFactory = new RDBFactory(host,port,dbname,user,password);
+        dao = (RDBDAO)sqlFactory.createDAO();
+        dao.removeAll();
+        dao.copyFromXML(dataPath);
     }
+    @After
+    public void clear(){
+        dao.removeAll();
+    }
+
     @Test
     public void getTest() throws NoSuchFieldException {
-            Assert.assertEquals(testPerformer,dao.get(testperformerName));
+        Assert.assertEquals(testPerformer, dao.get(testperformerName));
     }
+
     @Test
     public void getAllTest() throws NoSuchFieldException {
         Assert.assertEquals(testPerformers,dao.getAll());
     }
+
     @Test (expected = NoSuchFieldException.class)
     public void noSuchPerformerTest() throws NoSuchFieldException {
         dao.get("");
@@ -79,7 +94,7 @@ public class XMLTest {
         Assert.assertEquals(extendedPerformers,dao.getAll());
         dao.remove(performerToAdd);
     }
-
+    @Ignore
     @Test
     public void updateTest() throws NoSuchFieldException {
         dao.update(updatedTestPerformer);

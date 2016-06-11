@@ -25,7 +25,7 @@ public class CalculationToEntity implements LayerConverter<Catalog, EntityCatalo
             for (Album album: performer.getAlbums()){
                 List<EntityTrack> EntityTracks = new ArrayList<EntityTrack>();
                 for (Track track: album.getTracks()){
-                    EntityTracks.add(new EntityTrack(track.getLength(),track.getName()));
+                    EntityTracks.add(new EntityTrack(track.getName(), track.getLength()));
                 }
                 EntityAlbums.add(new EntityAlbum(album.getName(),album.getGenre(), EntityTracks));
             }

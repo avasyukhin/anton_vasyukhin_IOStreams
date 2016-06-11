@@ -19,7 +19,7 @@ public class EntityTrack implements Serializable {
     public EntityTrack() {
     }
 
-    public EntityTrack(int length, String name) {
+    public EntityTrack(String name, int length) {
         this.length = length;
         this.name = name;
     }

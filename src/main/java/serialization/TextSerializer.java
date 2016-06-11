@@ -105,7 +105,7 @@ public class TextSerializer implements Serializer<EntityCatalog> {
                     String trackName = in.readLine().trim();
                     checkFormat(in.readLine(), TRACK_LENGTH_MARK);
                     int trackLength = Integer.parseInt(in.readLine().trim());
-                    EntityTracks.add(new EntityTrack(trackLength, trackName));
+                    EntityTracks.add(new EntityTrack(trackName, trackLength));
                 }
                 EntityAlbums.add(new EntityAlbum(albumName, albumGenre, EntityTracks));
             }

@@ -37,16 +37,16 @@ public class XMLDAO implements EntityPerformerDAO {
             Unmarshaller jaxbUnmarshaller = context.createUnmarshaller();
             entity = (EntityCatalog) jaxbUnmarshaller.unmarshal(file);
             performers = entity.getEntityPerformers();
-            log.info("DAO inititalized on file " + filepath);
+            log.info("XML DAO inititalized on file " + filepath);
         } catch (JAXBException e) {
-            log.error("DAO init error",e);
+            log.error("XML DAO init error",e);
         }
     }
 
     public EntityPerformer get(String name) throws NoSuchFieldException {
         for (EntityPerformer performer : performers) {
             if (performer.getName().equals(name)) {
-                log.info("From DAO got performer " + name);
+                log.info("From XML DAO got performer " + name);
                 return performer;
             }
         }
@@ -54,20 +54,20 @@ public class XMLDAO implements EntityPerformerDAO {
     }
 
     public List<EntityPerformer> getAll() {
-        log.info("From DAO got all performer ");
+        log.info("From XML DAO got all performer ");
         return performers;
     }
 
     public void add(EntityPerformer performer) {
         performers.add(performer);
         log.info("Added performer " + performer.getName());
-        XMLupdate();
+        xmlUpdate();
     }
 
     public void remove(EntityPerformer performer) {
         performers.remove(performer);
         log.info("Removed performer " + performer.getName());
-        XMLupdate();
+        xmlUpdate();
     }
 
     public void update(EntityPerformer performer) throws NoSuchFieldException {
@@ -76,7 +76,7 @@ public class XMLDAO implements EntityPerformerDAO {
             if (performer.getName().equals(name)) {
                 performers.set(performers.indexOf(performerToUpdate),performer);
                 log.info("Removed performer " + performer.getName());
-                XMLupdate();
+                xmlUpdate();
                 return;
             }
         }
@@ -99,14 +99,14 @@ public class XMLDAO implements EntityPerformerDAO {
 
 
 
-    public void XMLupdate() {
+    public void xmlUpdate() {
         try {
             File file = new File(filepath);
             context = JAXBContext.newInstance(EntityCatalog.class);
             Unmarshaller jaxbUnmarshaller = context.createUnmarshaller();
             entity = (EntityCatalog) jaxbUnmarshaller.unmarshal(file);
         } catch (JAXBException e) {
-            log.error("DAO init error",e);
+            log.error("XML DAO init error",e);
         }
 
         if (entity.getEntityPerformers().equals(performers)) {
