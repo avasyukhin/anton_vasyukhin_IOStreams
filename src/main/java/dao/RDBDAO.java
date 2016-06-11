@@ -9,8 +9,10 @@ import org.apache.log4j.Logger;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 /**
  * Created by Aphex on 10.06.2016.
@@ -22,6 +24,7 @@ public class RDBDAO implements EntityPerformerDAO{
     private PreparedStatement getPerformerStatement,getPerformerAlbumsStatement,getAlbumStatement,getTrackStatement,
             addPerformerStatement, addAlbumStatement,addTrackStatement,
             removeStatement,removeAllStatement,getAllStatement,getAlbumByNameStatement,
+            getTrackByNameStatement, removeAlbumStatement,removeTrackStatement,
             updatePerformerStatement,updateAlbumStatement,updateTrackStatement,
             getTotalLengthStatement;
 
@@ -71,9 +74,30 @@ public class RDBDAO implements EntityPerformerDAO{
                             "  albums\n" +
                             "WHERE \n" +
                             "  perf_id =? AND alb_name =?;");
+            getTrackByNameStatement=conn.prepareStatement(
+                    "SELECT \n" +
+                            "  id\n" +
+                            "FROM \n" +
+                            "  tracks\n" +
+                            "WHERE \n" +
+                            "  alb_id =? AND track_name =?;");
+            updateAlbumStatement=conn.prepareStatement(
+                    "UPDATE \n" +
+                            "  albums\n" +
+                            "SET \n" +
+                            "  genre=?\n" +
+                            "WHERE \n" +
+                            "  perf_id =? AND alb_name =?;");
+            updateTrackStatement=conn.prepareStatement(
+                    "UPDATE \n" +
+                            "  tracks\n" +
+                            "SET \n" +
+                            "  len=?\n" +
+                            "WHERE \n" +
+                            "  alb_id =? AND track_name =?;");
             getTrackStatement=conn.prepareStatement(
                     "SELECT \n" +
-                            "  track_name,track_len\n" +
+                            "  id, track_name,track_len\n" +
                             "FROM \n" +
                             "  tracks\n" +
                             "WHERE \n" +
@@ -87,6 +111,16 @@ public class RDBDAO implements EntityPerformerDAO{
                     "DELETE \n"+
                             "FROM performers\n" +
                             "WHERE perf_name = ?;"
+            );
+            removeAlbumStatement=conn.prepareStatement(
+                    "DELETE \n"+
+                            "FROM albums\n" +
+                            "WHERE id = ?;"
+            );
+            removeTrackStatement=conn.prepareStatement(
+                    "DELETE \n"+
+                            "FROM tracks\n" +
+                            "WHERE id = ?;"
             );
             removeAllStatement=conn.prepareStatement(
                     "DELETE \n"+
@@ -134,7 +168,7 @@ public class RDBDAO implements EntityPerformerDAO{
                 ResultSet tracksResult = getTrackStatement.executeQuery();
                 List<EntityTrack> tracks = new ArrayList<>();
                 while (tracksResult.next()){
-                    tracks.add(new EntityTrack(tracksResult.getString(1),tracksResult.getInt(2)));
+                    tracks.add(new EntityTrack(tracksResult.getString(2),tracksResult.getInt(3)));
                 }
                 albums.add(new EntityAlbum(albumsResult.getString(2),albumsResult.getString(3),tracks));
             }
@@ -143,10 +177,10 @@ public class RDBDAO implements EntityPerformerDAO{
             }
             performer.setName(name);
             performer.setEntityAlbums(albums);
+            log.info("From RDB DAO got performer " + name);
         } catch (SQLException e) {
             log.error("SQL error", e);
         }
-        log.info("From RDB DAO got performer " + name);
         return performer;
     }
 
@@ -165,7 +199,7 @@ public class RDBDAO implements EntityPerformerDAO{
                     ResultSet tracksResult = getTrackStatement.executeQuery();
                     List<EntityTrack> tracks = new ArrayList<>();
                     while (tracksResult.next()) {
-                        tracks.add(new EntityTrack(tracksResult.getString(1), tracksResult.getInt(2)));
+                        tracks.add(new EntityTrack(tracksResult.getString(2), tracksResult.getInt(3)));
                     }
                     albums.add(new EntityAlbum(albumsResult.getString(2), albumsResult.getString(3), tracks));
                 }
@@ -227,7 +261,91 @@ public class RDBDAO implements EntityPerformerDAO{
     }
 
 
-    public void update(EntityPerformer performer)throws NoSuchFieldException{}
+    public void update(EntityPerformer performer)throws NoSuchFieldException{
+        try {
+            getPerformerStatement.setString(1, performer.getName());
+            ResultSet performersResult = getPerformerStatement.executeQuery();
+            if(performersResult.next()) {
+                int perf_id = performersResult.getInt(1);
+                List<String> albumNames= performer
+                        .getEntityAlbums()
+                        .stream()
+                        .map(album -> album.getName())
+                        .collect(Collectors.toList());
+                getAlbumStatement.setInt(1,perf_id);
+                ResultSet albumsResult = getAlbumStatement.executeQuery();
+                while (albumsResult.next()){
+                    if (!albumNames.contains(albumsResult.getString(2))){
+                        removeAlbumStatement.setInt(1,albumsResult.getInt(1));
+                        removeAlbumStatement.executeUpdate();
+                    }
+                }
+                for (EntityAlbum album: performer.getEntityAlbums()){
+                    getAlbumByNameStatement.setInt(1,perf_id);
+                    getAlbumByNameStatement.setString(2,album.getName());
+                    ResultSet albumIsSet = getAlbumByNameStatement.executeQuery();
+                    if(albumIsSet.next()){
+                        updateAlbumStatement.setString(1,album.getGenre());
+                        updateAlbumStatement.setInt(2, perf_id);
+                        updateAlbumStatement.setString(3,album.getName());
+                        updateAlbumStatement.executeUpdate();
+                        int alb_id = albumIsSet.getInt(1);
+                        List<String> trackNames= album
+                                .getEntityTracks()
+                                .stream()
+                                .map(track -> track.getName())
+                                .collect(Collectors.toList());
+                        getTrackStatement.setInt(1,alb_id);
+                        ResultSet tracksResult = getTrackStatement.executeQuery();
+                        while (tracksResult.next()){
+                            if (!trackNames.contains(tracksResult.getString(2))){
+                                removeTrackStatement.setInt(1,tracksResult.getInt(1));
+                                removeTrackStatement.executeUpdate();
+                            }
+                        }
+                        for (EntityTrack track:album.getEntityTracks()){
+                            getTrackByNameStatement.setInt(1,alb_id);
+                            getTrackByNameStatement.setString(2,track.getName());
+                            ResultSet trackIsSet = getTrackByNameStatement.executeQuery();
+                            if(trackIsSet.next()){
+                                updateTrackStatement.setInt(1, track.getLength());
+                                updateTrackStatement.setInt(2, alb_id);
+                                updateTrackStatement.setString(3,track.getName());
+                                updateTrackStatement.executeUpdate();
+                            }else{
+                                addTrackStatement.setString(1, track.getName());
+                                addTrackStatement.setInt(2, track.getLength());
+                                addTrackStatement.setInt(3, alb_id);
+                                addTrackStatement.executeUpdate();
+                            }
+                        }
+                    }else {
+                        addAlbumStatement.setString(1, album.getName());
+                        addAlbumStatement.setString(2, album.getGenre());
+                        addAlbumStatement.setInt(3, perf_id);
+                        addAlbumStatement.executeUpdate();
+                        getAlbumByNameStatement.setInt(1, perf_id);
+                        getAlbumByNameStatement.setString(2, album.getName());
+                        ResultSet albumsID = getAlbumByNameStatement.executeQuery();
+                        albumsID.next();
+                        int alb_id = albumsID.getInt(1);
+                        for (EntityTrack track : album.getEntityTracks()) {
+                            addTrackStatement.setString(1, track.getName());
+                            addTrackStatement.setInt(2, track.getLength());
+                            addTrackStatement.setInt(3, alb_id);
+                            addTrackStatement.executeUpdate();
+                        }
+
+                    }
+                }
+            }else{
+                throw new NoSuchFieldException("Not found performer with name " +performer.getName());
+            }
+            log.info("In RDB DAO updated performer " + performer.getName());
+        } catch (SQLException e) {
+            log.error("SQL error", e);
+        }
+    }
 
     public int getTotalLength(String name)throws NoSuchFieldException{
         int length = 0;

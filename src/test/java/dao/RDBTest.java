@@ -94,7 +94,7 @@ public class RDBTest {
         Assert.assertEquals(extendedPerformers,dao.getAll());
         dao.remove(performerToAdd);
     }
-    @Ignore
+
     @Test
     public void updateTest() throws NoSuchFieldException {
         dao.update(updatedTestPerformer);
